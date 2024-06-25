@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notas</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        background-color: #e9ecef;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+        flex-wrap: wrap;
+        overflow-y: hidden; 
+      }
+
+      .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        box-sizing: border-box;
+        margin-right: 20px;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+
+      .button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .button:hover {
+        background-color: #0056b3;
+      }
+
+      .button.secondary {
+        background-color: #6c757d;
+      }
+
+      .button.secondary:hover {
+        background-color: #5a6268;
+      }
+
+      #result {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      #result p {
+        font-size: 18px;
+        margin: 5px 0;
+      }
+
+      #average {
+        font-weight: 700;
+      }
+
+      #status {
+        font-weight: 700;
+        color: #28a745;
+      }
+
+      #status.desaprobado {
+        color: #dc3545;
+      }
+
+      /* Estilos adicionales para asegurar que el encabezado se mantenga visible */
+      @media (max-width: 768px) {
+        body {
+          overflow-y: auto;
+        }
+
+        h1 {
+          font-size: 22px;
+          margin-bottom: 15px;
+        }
+
+        .input-group input {
+          padding: 8px;
+          font-size: 14px;
+        }
+
+        #result p {
+          font-size: 16px;
+        }
+      }
+
+      .saved-notes {
+        width: 100%;
+        max-width: 400px;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .note-card,
+      .add-card {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+
+      .note-card-title {
+        font-weight: 700;
+        margin-right: 10px;
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 15px;
+      }
+
+      .note-card-date {
+        font-size: 12px;
+        color: #666;
+        position: absolute;
+        bottom: 10px;
+        left: 15px;
+      }
+
+      .edit-button,
+      .delete-button {
+        background-color: #ffc107;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 5px;
+      }
+
+      .edit-button:hover {
+        background-color: #e0a800;
+      }
+
+      .delete-button {
+        background-color: #dc3545;
+      }
+
+      .delete-button:hover {
+        background-color: #c82333;
+      }
+
+      .add-card {
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .add-card:hover {
+        background-color: #f8f9fa;
+      }
+
+      .add-card::before {
+        content: "+";
+        font-size: 24px;
+        color: #007bff;
+      }
+
+      /* Estilo para el cuadro de diálogo */
+      .dialog-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+
+      .dialog {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      .dialog input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+
+      .dialog-buttons {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .dialog .button {
+        flex: 1;
+        margin: 0 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Calculadora de Notas</h1>
+      <form id="gradesForm">
+        <div class="input-group">
+          <label for="nota1">PC1 (15%):</label>
+          <input
+            type="number"
+            id="nota1"
+            max="20"
+            step="0.01"
+            oninput="validateInput(this); calculateAverage()"
+            onkeypress="moveToNextInput(event, 'nota2')"
+          />
+        </div>
+        <div class="input-group">
+          <label for="nota2">PC2 (15%):</label>
+          <input
+            type="number"
+            id="nota2"
+            max="20"
+            step="0.01"
+            oninput="validateInput(this); calculateAverage()"
+            onkeypress="moveToNextInput(event, 'nota3')"
+          />
+        </div>
+        <div class="input-group">
+          <label for="nota3">PC3 (15%):</label>
+          <input
+            type="number"
+            id="nota3"
+            max="20"
+            step="0.01"
+            oninput="validateInput(this); calculateAverage()"
+            onkeypress="moveToNextInput(event, 'nota4')"
+          />
+        </div>
+        <div class="input-group">
+          <label for="nota4">PC4 (15%):</label>
+          <input
+            type="number"
+            id="nota4"
+            max="20"
+            step="0.01"
+            oninput="validateInput(this); calculateAverage()"
+            onkeypress="moveToNextInput(event, 'nota5')"
+          />
+        </div>
+        <div class="input-group">
+          <label for="nota5">Parcial (20%):</label>
+          <input
+            type="number"
+            id="nota5"
+            max="20"
+            step="0.01"
+            oninput="validateInput(this); calculateAverage()"
+            onkeypress="moveToNextInput(event, 'nota6')"
+          />
+        </div>
+        <div class="input-group">
+          <label for="nota6">Final (20%):</label>
+          <input
+            type="number"
+            id="nota6"
+            max="20"
+            step="0.01"
+            oninput="validateInput(this); calculateAverage()"
+            onkeypress="moveToNextInput(event, 'saveButton')"
+          />
+        </div>
+        <div class="buttons">
+          <button
+            type="button"
+            class="button"
+            id="saveButton"
+            onclick="saveNote()"
+          >
+            Guardar Nota
+          </button>
+          <button type="button" class="button secondary" onclick="clearForm()">
+            Limpiar
+          </button>
+        </div>
+      </form>
+      <div id="result">
+        <p>Promedio: <span id="average">0</span></p>
+        <p>Estado: <span id="status">-</span></p>
+      </div>
+    </div>
+
+    <div class="saved-notes" id="savedNotes"></div>
+
+    <div class="dialog-overlay" id="dialogOverlay">
+      <div class="dialog">
+        <h3>Editar Nombre del Curso</h3>
+        <input
+          type="text"
+          id="courseNameInput"
+          onkeypress="handleEnterKey(event)"
+        />
+        <div class="dialog-buttons">
+          <button
+            type="button"
+            class="button"
+            id="saveNoteButton"
+            onclick="confirmSave()"
+          >
+            Guardar
+          </button>
+          <button
+            type="button"
+            class="button secondary"
+            onclick="closeDialog()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentEditingIndex = null;
+
+      function calculateAverage() {
+        const nota1 = parseFloat(document.getElementById("nota1").value) || 0;
+        const nota2 = parseFloat(document.getElementById("nota2").value) || 0;
+        const nota3 = parseFloat(document.getElementById("nota3").value) || 0;
+        const nota4 = parseFloat(document.getElementById("nota4").value) || 0;
+        const nota5 = parseFloat(document.getElementById("nota5").value) || 0;
+        const nota6 = parseFloat(document.getElementById("nota6").value) || 0;
+
+        const average =
+          nota1 * 0.15 +
+          nota2 * 0.15 +
+          nota3 * 0.15 +
+          nota4 * 0.15 +
+          nota5 * 0.2 +
+          nota6 * 0.2;
+        document.getElementById("average").textContent = average.toFixed(2);
+
+        const statusElement = document.getElementById("status");
+        if (average > 10.5) {
+          statusElement.textContent = "Aprobado";
+          statusElement.classList.remove("desaprobado");
+          statusElement.classList.add("aprobado");
+        } else {
+          statusElement.textContent = "Desaprobado";
+          statusElement.classList.remove("aprobado");
+          statusElement.classList.add("desaprobado");
+        }
+      }
+
+      function validateInput(input) {
+        if (input.value > 20) {
+          input.value = 20;
+        }
+        if (input.value < 0) {
+          input.value = 0;
+        }
+      }
+
+      function saveNote() {
+        if (currentEditingIndex === null) {
+          openDialog();
+        } else {
+          confirmSave();
+        }
+      }
+
+      function openDialog() {
+        document.getElementById("dialogOverlay").style.display = "flex";
+      }
+
+      function closeDialog() {
+        document.getElementById("dialogOverlay").style.display = "none";
+        document.getElementById("courseNameInput").value = "";
+      }
+
+      function confirmSave() {
+        const title = document.getElementById("courseNameInput").value;
+        const note = {
+          title: title,
+          notas: [
+            parseFloat(document.getElementById("nota1").value) || 0,
+            parseFloat(document.getElementById("nota2").value) || 0,
+            parseFloat(document.getElementById("nota3").value) || 0,
+            parseFloat(document.getElementById("nota4").value) || 0,
+            parseFloat(document.getElementById("nota5").value) || 0,
+            parseFloat(document.getElementById("nota6").value) || 0,
+          ],
+          date: new Date().toLocaleString(),
+        };
+
+        let savedNotes = JSON.parse(localStorage.getItem("savedNotes")) || [];
+        if (currentEditingIndex !== null) {
+          savedNotes[currentEditingIndex].notas = note.notas;
+          savedNotes[currentEditingIndex].title = note.title;
+        } else {
+          savedNotes.push(note);
+        }
+        localStorage.setItem("savedNotes", JSON.stringify(savedNotes));
+
+        displaySavedNotes();
+        clearForm();
+        closeDialog();
+      }
+
+      function displaySavedNotes() {
+        const savedNotes = JSON.parse(localStorage.getItem("savedNotes")) || [];
+        const savedNotesContainer = document.getElementById("savedNotes");
+        savedNotesContainer.innerHTML = "";
+
+        if (savedNotes.length === 0) {
+          const addCard = document.createElement("div");
+          addCard.className = "add-card";
+          addCard.onclick = saveNote;
+          savedNotesContainer.appendChild(addCard);
+        } else {
+          savedNotes.forEach((note, index) => {
+            const noteCard = document.createElement("div");
+            noteCard.className = "note-card";
+
+            const noteTitle = document.createElement("div");
+            noteTitle.className = "note-card-title";
+            noteTitle.textContent = note.title;
+
+            const noteDate = document.createElement("div");
+            noteDate.className = "note-card-date";
+            noteDate.textContent = note.date;
+
+            const editButton = document.createElement("button");
+            editButton.className = "edit-button";
+            editButton.textContent = "Editar";
+            editButton.onclick = (event) => {
+              event.stopPropagation();
+              editNoteTitle(index);
+            };
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete-button";
+            deleteButton.textContent = "Eliminar";
+            deleteButton.onclick = (event) => {
+              event.stopPropagation();
+              deleteNote(index);
+            };
+
+            noteCard.appendChild(noteTitle);
+            noteCard.appendChild(noteDate);
+            noteCard.appendChild(editButton);
+            noteCard.appendChild(deleteButton);
+            noteCard.onclick = () => loadNote(index);
+            savedNotesContainer.appendChild(noteCard);
+          });
+        }
+      }
+
+      function loadNote(index) {
+        const savedNotes = JSON.parse(localStorage.getItem("savedNotes")) || [];
+        const note = savedNotes[index];
+
+        if (note) {
+          document.getElementById("nota1").value = note.notas[0];
+          document.getElementById("nota2").value = note.notas[1];
+          document.getElementById("nota3").value = note.notas[2];
+          document.getElementById("nota4").value = note.notas[3];
+          document.getElementById("nota5").value = note.notas[4];
+          document.getElementById("nota6").value = note.notas[5];
+
+          calculateAverage();
+          currentEditingIndex = index;
+          document.getElementById("saveButton").textContent = "Actualizar Nota";
+          document.getElementById("courseNameInput").value = note.title;
+        }
+      }
+
+      function editNoteTitle(index) {
+        currentEditingIndex = index;
+        const savedNotes = JSON.parse(localStorage.getItem("savedNotes")) || [];
+        const note = savedNotes[index];
+
+        if (note) {
+          openDialog();
+          document.getElementById("courseNameInput").value = note.title;
+        }
+      }
+
+      function deleteNote(index) {
+        let savedNotes = JSON.parse(localStorage.getItem("savedNotes")) || [];
+        savedNotes.splice(index, 1);
+        localStorage.setItem("savedNotes", JSON.stringify(savedNotes));
+        displaySavedNotes();
+      }
+
+      function clearForm() {
+        document.getElementById("nota1").value = "";
+        document.getElementById("nota2").value = "";
+        document.getElementById("nota3").value = "";
+        document.getElementById("nota4").value = "";
+        document.getElementById("nota5").value = "";
+        document.getElementById("nota6").value = "";
+        document.getElementById("courseNameInput").value = "";
+        calculateAverage();
+        currentEditingIndex = null;
+        document.getElementById("saveButton").textContent = "Guardar Nota";
+      }
+
+      function handleEnterKey(event) {
+        if (event.key === "Enter") {
+          confirmSave();
+        }
+      }
+
+      function moveToNextInput(event, nextInputId) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.getElementById(nextInputId).focus();
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", displaySavedNotes);
+    </script>
+  </body>
+</html>
